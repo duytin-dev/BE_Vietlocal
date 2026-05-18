@@ -1,0 +1,42 @@
+{
+  "_note": "POST /api/bookings — amount do server tính = pricePerDay × estimatedDays",
+  "cases": [
+    {
+      "name": "HDV cao cấp — 3 ngày → 4,500,000 VND",
+      "body": {
+        "customerName": "Nguyễn Văn An",
+        "email": "an.nguyen@example.com",
+        "phone": "0901234567",
+        "guideId": 1,
+        "itinerarySummary": "Ngày 1: Sơn Trà\nNgày 2: Hội An\nNgày 3: Bà Nà",
+        "customerNotes": "Nhóm 2 người",
+        "estimatedDays": 3
+      }
+    },
+    {
+      "name": "HDV tầm trung — 2 ngày → 1,600,000 VND",
+      "body": {
+        "customerName": "Trần Thị Mai",
+        "email": "mai.tran@example.com",
+        "phone": "0912345678",
+        "guideId": 2,
+        "itinerarySummary": "Food tour Hà Nội",
+        "estimatedDays": 2
+      }
+    },
+    {
+      "name": "HDV phổ thông — 1 ngày → 400,000 VND",
+      "body": {
+        "customerName": "Lê Hoàng Nam",
+        "email": "nam.le@example.com",
+        "guideId": 3,
+        "estimatedDays": 1
+      }
+    }
+  ],
+  "confirmPayment": {
+    "header": "X-Payment-Secret: vietlocal-dev-secret",
+    "method": "POST",
+    "url": "/api/bookings/{bookingId}/confirm-payment"
+  }
+}

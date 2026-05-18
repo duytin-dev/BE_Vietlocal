@@ -1,0 +1,3 @@
+# Copy thành application-local.properties (cùng thư mục) — KHÔNG commit file .properties thật
+app.ai.gemini.api-key=your-gemini-key-here
+app.ai.gemini.model=gemini-2.5-flash-lite
