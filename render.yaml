@@ -5,7 +5,7 @@ services:
     runtime: java
     plan: free
     buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/app-0.0.1-SNAPSHOT.jar
+    startCommand: java -Dserver.port=$PORT -Dserver.address=0.0.0.0 -jar target/app-0.0.1-SNAPSHOT.jar
     healthCheckPath: /api/destinations
     envVars:
       - key: SPRING_PROFILES_ACTIVE
@@ -29,4 +29,6 @@ services:
       - key: PAYMENT_WEBHOOK_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        sync: false
+        value: http://localhost:5173
+      - key: JWT_SECRET
+        generateValue: true
