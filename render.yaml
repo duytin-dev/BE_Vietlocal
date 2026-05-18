@@ -1,34 +1,29 @@
-# Render.com — New Blueprint hoặc Web Service, root: BE/app
+# Render Blueprint — root directory: BE/app
 services:
   - type: web
     name: vietlocal-api
-    runtime: java
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -Dserver.port=$PORT -Dserver.address=0.0.0.0 -jar target/app-0.0.1-SNAPSHOT.jar
     healthCheckPath: /api/destinations
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
       - key: APP_SEED_ENABLED
-        value: true
+        value: "false"
       - key: AI_PROVIDER
         value: gemini
       - key: GEMINI_MODEL
         value: gemini-2.5-flash-lite
-      - key: SPRING_DATASOURCE_URL
-        sync: false
-      - key: DB_USERNAME
-        sync: false
-      - key: DB_PASSWORD
-        sync: false
+      - key: CORS_ORIGIN
+        value: http://localhost:5173
       - key: GEMINI_API_KEY
         sync: false
       - key: ADMIN_SECRET
         generateValue: true
       - key: PAYMENT_WEBHOOK_SECRET
         generateValue: true
-      - key: CORS_ORIGIN
-        value: http://localhost:5173
       - key: JWT_SECRET
         generateValue: true
+      # Postgres: dashboard → Web Service → Environment → Add from database
+      # KHÔNG set SPRING_DATASOURCE_URL nếu đã link DB (tránh host internal sai)
