@@ -6,12 +6,17 @@ import com.vietlocal.app.domain.entity.Payment;
 import com.vietlocal.app.domain.entity.User;
 import com.vietlocal.app.domain.enums.BookingStatus;
 import com.vietlocal.app.domain.enums.PaymentStatus;
+import com.vietlocal.app.domain.entity.Guide;
+import com.vietlocal.app.dto.request.CreateAdminGuideRequest;
 import com.vietlocal.app.dto.response.AdminAiChatLogResponse;
 import com.vietlocal.app.dto.response.AdminBookingResponse;
 import com.vietlocal.app.dto.response.AdminDashboardResponse;
 import com.vietlocal.app.dto.response.AdminUserResponse;
+import com.vietlocal.app.dto.response.GuideResponse;
 import com.vietlocal.app.dto.response.PageResponse;
 import com.vietlocal.app.repository.AiChatLogRepository;
+import com.vietlocal.app.utils.EntityMapper;
+import com.vietlocal.app.utils.SlugUtils;
 import com.vietlocal.app.repository.BookingRepository;
 import com.vietlocal.app.repository.GuideRepository;
 import com.vietlocal.app.repository.PaymentRepository;
@@ -83,6 +88,47 @@ public class AdminService {
 		Page<AdminAiChatLogResponse> page = aiChatLogRepository.findAllByOrderByCreatedAtDesc(pageable)
 				.map(this::toAdminAiChat);
 		return PageResponse.from(page);
+	}
+
+	@Transactional(readOnly = true)
+	public PageResponse<GuideResponse> listGuides(Pageable pageable) {
+		Page<GuideResponse> page = guideRepository.findAllByOrderByRatingDesc(pageable)
+				.map(g -> EntityMapper.toGuideResponse(g, true));
+		return PageResponse.from(page);
+	}
+
+	@Transactional
+	public GuideResponse createGuide(CreateAdminGuideRequest request) {
+		String baseSlug = request.getSlug() != null && !request.getSlug().isBlank()
+				? SlugUtils.toSlug(request.getSlug())
+				: SlugUtils.toSlug(request.getName());
+		String slug = SlugUtils.uniqueSlug(baseSlug, guideRepository::existsBySlug);
+
+		double rating = request.getRating() != null ? request.getRating() : 5.0;
+		String name = request.getName().trim();
+		String tierLabel = request.getTier().name().toLowerCase();
+
+		Guide guide = Guide.builder()
+				.name(name)
+				.slug(slug)
+				.tier(request.getTier())
+				.bio(defaultText(request.getBio(), "Hướng dẫn viên " + name + " — chuyên tour văn hóa và trải nghiệm địa phương."))
+				.styleDescription(defaultText(
+						request.getStyleDescription(),
+						"Phong cách " + tierLabel + ", nhiệt tình và am hiểu vùng miền."))
+				.imageUrl(defaultText(
+						request.getImageUrl(),
+						"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&sig=" + slug))
+				.languages(defaultText(request.getLanguages(), "Tiếng Việt"))
+				.rating(rating)
+				.pricePerDay(request.getPricePerDay())
+				.build();
+
+		return EntityMapper.toGuideResponse(guideRepository.save(guide), true);
+	}
+
+	private static String defaultText(String value, String fallback) {
+		return value != null && !value.isBlank() ? value.trim() : fallback;
 	}
 
 	private AdminUserResponse toAdminUser(User u, long bookingCount) {

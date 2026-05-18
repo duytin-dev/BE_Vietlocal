@@ -32,4 +32,6 @@ public interface GuideRepository extends JpaRepository<Guide, Long> {
 			ORDER BY g.rating DESC
 			""")
 	List<Guide> findAvailableOrderByRatingDesc(Pageable pageable);
+
+	boolean existsBySlug(String slug);
 }
